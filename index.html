@@ -2417,16 +2417,106 @@
     });
   });
 
-  function submitForm() {
-    // In production, post to your endpoint here.
-    // const data = new FormData(formEl);
-    // fetch('/api/discovery', { method: 'POST', body: data });
+  // ============= FORM SUBMISSION (FormSubmit → llcridgeline@gmail.com) =============
+  // Every submission emails Ivan with all 45 answers. First-time use requires
+  // a one-click confirmation from FormSubmit (sent to llcridgeline@gmail.com).
+  // Free, unlimited, no signup, no API keys.
+  const FORM_ENDPOINT = 'https://formsubmit.co/ajax/llcridgeline@gmail.com';
 
-    formEl.style.display = 'none';
-    document.querySelector('.sidebar').style.opacity = '0.4';
-    confirmation.classList.add('active');
-    confirmation.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  async function submitForm() {
+    // Build a clean payload — collect every field, group multi-value (checkbox) answers
+    const formData = new FormData(formEl);
+    const payload = {};
+    formData.forEach((value, key) => {
+      if (key in payload) {
+        payload[key] = Array.isArray(payload[key]) ? [...payload[key], value] : [payload[key], value];
+      } else {
+        payload[key] = value;
+      }
+    });
+
+    // FormSubmit metadata — controls subject line, captcha, email layout
+    payload._subject = `New Ridgeline Discovery: ${payload.business || payload.name || 'Anonymous'}`;
+    payload._captcha = 'false';
+    payload._template = 'box';
+    payload._honey = ''; // anti-spam honeypot (must stay empty)
+
+    // Show submitting state on the button
+    const originalLabel = nextBtn.innerHTML;
+    nextBtn.disabled = true;
+    nextBtn.innerHTML = 'Sending<span class="arr"> …</span>';
+
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+
+      // Success — reveal confirmation, clear saved draft
+      formEl.style.display = 'none';
+      document.querySelector('.sidebar').style.opacity = '0.4';
+      confirmation.classList.add('active');
+      confirmation.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      try { localStorage.removeItem('ridgeline-draft'); } catch (e) {}
+    } catch (err) {
+      console.error('Submission failed:', err);
+      nextBtn.disabled = false;
+      nextBtn.innerHTML = originalLabel;
+      alert(
+        "We couldn't send your discovery — likely a network hiccup.\n\n" +
+        "Please try once more. If it keeps failing, email us directly at\n" +
+        "llcridgeline@gmail.com and we'll handle it manually."
+      );
+    }
   }
+
+  // ============= AUTO-SAVE DRAFT TO LOCALSTORAGE =============
+  // Saves progress as user types. If they close the tab and return,
+  // their answers are restored. Cleared on successful submission.
+  const DRAFT_KEY = 'ridgeline-draft';
+
+  function saveDraft() {
+    try {
+      const data = {};
+      new FormData(formEl).forEach((value, key) => {
+        if (key in data) {
+          data[key] = Array.isArray(data[key]) ? [...data[key], value] : [data[key], value];
+        } else {
+          data[key] = value;
+        }
+      });
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    } catch (e) { /* localStorage may be unavailable in private browsing */ }
+  }
+
+  function restoreDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const data = JSON.parse(raw);
+      Object.entries(data).forEach(([key, value]) => {
+        const fields = formEl.querySelectorAll(`[name="${key}"]`);
+        fields.forEach(field => {
+          if (field.type === 'checkbox' || field.type === 'radio') {
+            const values = Array.isArray(value) ? value : [value];
+            if (values.includes(field.value)) field.checked = true;
+          } else {
+            field.value = value;
+          }
+        });
+      });
+    } catch (e) { /* corrupt or unavailable — ignore */ }
+  }
+
+  formEl.addEventListener('input', saveDraft);
+  formEl.addEventListener('change', saveDraft);
+  restoreDraft();
 
   // Auto-fill today's date
   const today = new Date().toISOString().slice(0, 10);
