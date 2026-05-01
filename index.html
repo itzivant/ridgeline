@@ -857,6 +857,22 @@
   .star.s3 { top: 17%; left: 62%; width: 4px; height: 4px; animation-delay: 3.0s; }
   .star.s4 { top: 5%;  left: 82%; width: 3px; height: 3px; animation-delay: 4.4s; }
   .star.s5 { top: 22%; left: 28%; width: 2px; height: 2px; animation-delay: 2.2s; }
+  /* Mid-page stars */
+  .star.s6  { top: 32%; left: 7%;  width: 3px; height: 3px; animation-delay: 0.8s; }
+  .star.s7  { top: 40%; left: 92%; width: 2px; height: 2px; animation-delay: 3.2s; }
+  .star.s8  { top: 48%; left: 50%; width: 2px; height: 2px; animation-delay: 5.5s; }
+  .star.s9  { top: 56%; left: 18%; width: 4px; height: 4px; animation-delay: 4.6s; }
+  .star.s10 { top: 60%; left: 73%; width: 3px; height: 3px; animation-delay: 1.4s; }
+  /* Lower-page stars */
+  .star.s11 { top: 70%; left: 12%; width: 2px; height: 2px; animation-delay: 2.8s; }
+  .star.s12 { top: 76%; left: 88%; width: 3px; height: 3px; animation-delay: 0.5s; }
+  .star.s13 { top: 82%; left: 33%; width: 2px; height: 2px; animation-delay: 3.9s; }
+  .star.s14 { top: 88%; left: 64%; width: 4px; height: 4px; animation-delay: 5.1s; }
+  .star.s15 { top: 92%; left: 22%; width: 2px; height: 2px; animation-delay: 1.7s; }
+  /* Edge-of-viewport stars */
+  .star.s16 { top: 36%; left: 3%;  width: 2px; height: 2px; animation-delay: 4.2s; }
+  .star.s17 { top: 66%; left: 96%; width: 3px; height: 3px; animation-delay: 2.6s; }
+  .star.s18 { top: 95%; left: 78%; width: 2px; height: 2px; animation-delay: 5.8s; }
 
   @keyframes star-twinkle {
     0%, 100% { opacity: 0.25; }
@@ -918,16 +934,16 @@
     isolation: isolate;
   }
 
-  /* Particle canvas */
+  /* Galaxy particle canvas — fixed across the entire viewport */
   .hero-canvas {
-    position: absolute;
+    position: fixed;
     inset: 0;
     pointer-events: none;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
     opacity: 0;
-    animation: ph-load 0.4s ease-in-out forwards;
+    animation: ph-load 0.8s ease-in-out forwards;
   }
 
   /* Spotlight cones */
@@ -1723,17 +1739,32 @@
 
 <!-- ================= BACKGROUND: SUMMIT AT DAWN ================= -->
 <div id="bg-art" aria-hidden="true">
-  <!-- Sunrise glow (upper right) and soft moonlight (lower left) -->
+  <!-- Galaxy: ambient glows -->
   <div class="sunrise"></div>
   <div class="moon-glow"></div>
 
-  <!-- Sparse stars in the upper sky -->
+  <!-- Galaxy: rising particle starfield (covers entire viewport, follows scroll) -->
+  <canvas class="hero-canvas" id="particleCanvas"></canvas>
+
+  <!-- Galaxy: scattered twinkling stars across the full page -->
   <span class="star s1"></span>
   <span class="star s2"></span>
   <span class="star s3"></span>
   <span class="star s4"></span>
   <span class="star s5"></span>
-
+  <span class="star s6"></span>
+  <span class="star s7"></span>
+  <span class="star s8"></span>
+  <span class="star s9"></span>
+  <span class="star s10"></span>
+  <span class="star s11"></span>
+  <span class="star s12"></span>
+  <span class="star s13"></span>
+  <span class="star s14"></span>
+  <span class="star s15"></span>
+  <span class="star s16"></span>
+  <span class="star s17"></span>
+  <span class="star s18"></span>
 </div>
 
 <!-- ================= NAV ================= -->
@@ -1759,9 +1790,6 @@
 
   <!-- Mode toggle dot (click to flip color scheme) -->
   <button class="mode-toggle" id="modeToggle" type="button" aria-label="Toggle gold mode"></button>
-
-  <!-- Particle canvas (rising white starfield) -->
-  <canvas class="hero-canvas" id="particleCanvas"></canvas>
 
   <!-- Hero content -->
   <div class="hero-content">
@@ -2460,13 +2488,14 @@
     }
 
     function resize() {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
       initParticles();
     }
 
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+    // Initial sizing — viewport-bound so the galaxy covers the whole page
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
     initParticles();
     loop();
     window.addEventListener('resize', resize);
@@ -2478,17 +2507,14 @@
       });
     }
 
-    // Pause animation when hero is offscreen (perf)
-    const visObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          if (!rafId) loop();
-        } else {
-          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-        }
-      });
-    }, { threshold: 0 });
-    visObserver.observe(heroDark);
+    // Pause animation only when the entire page tab is hidden (perf-friendly)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      } else {
+        if (!rafId) loop();
+      }
+    });
 
     // Toggle nav theme based on whether the dark hero is in view
     const navObserver = new IntersectionObserver((entries) => {
