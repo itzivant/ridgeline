@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 110" role="img" aria-label="Ridgeline">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@800&amp;display=swap');
+      .rl-word {
+        font-family: 'Manrope', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+        font-weight: 800;
+        font-size: 56px;
+        letter-spacing: 4px;
+        fill: #F5F1EA;
+      }
+    </style>
+  </defs>
+
+  <rect width="480" height="110" fill="#0B1B2B" />
+
+  <g transform="translate(20 22)">
+    <path
+      d="M 4 50 L 18 36 L 28 42 L 42 22 L 52 30 L 66 6 L 76 38"
+      fill="none"
+      stroke="#F5F1EA"
+      stroke-width="4.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <circle cx="66" cy="6" r="4" fill="#D4AF37" />
+  </g>
+
+  <text x="125" y="76" class="rl-word">RIDGELINE</text>
+</svg>

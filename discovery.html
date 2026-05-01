@@ -1,0 +1,2504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ridgeline — Client Discovery</title>
+<meta name="description" content="A 10-minute conversation that turns into a website built to bring you real customers." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    /* Dark theme — semantic vars (kept old names so existing rules inherit) */
+    --navy: #d8ecf8;            /* primary text (was dark, now light on dark bg) */
+    --navy-soft: #98c0ef;       /* softer text */
+    --gold: #d8bd10;            /* accent (slightly brighter for dark contrast) */
+    --gold-soft: #ffd87a;
+    --gold-deep: #b89a0d;
+    --cream: #05060f;           /* primary surface (was light, now dark) */
+    --cream-warm: #0a0c1c;      /* slightly raised surface */
+    --line: rgba(186, 215, 247, 0.10);
+    --line-soft: rgba(186, 215, 247, 0.05);
+    --muted: #6c8aae;
+    --error: #ff6b5a;
+    --serif: 'Instrument Serif', 'Times New Roman', serif;
+    --sans: 'Manrope', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: #05060f;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124, 145, 182, 0.10), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 50% 100%, rgba(124, 145, 182, 0.06), transparent 60%),
+      linear-gradient(0deg, rgba(216, 236, 248, 0.04), rgba(152, 192, 239, 0.04));
+    color: var(--navy);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Subtle film grain — barely there, gives depth on the dark bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.025;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  /* ====================== NAV ====================== */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5, 6, 15, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(186, 215, 247, 0.07);
+    padding: 18px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: var(--navy);
+    line-height: 1;
+  }
+  .logo-mark {
+    width: 40px;
+    height: 28px;
+    display: block;
+    flex-shrink: 0;
+  }
+  .logo-word {
+    font-family: var(--sans);
+    font-weight: 800;
+    letter-spacing: 3px;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--navy);
+    white-space: nowrap;
+    transform: translateY(1px);
+  }
+  .nav-meta {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .nav-meta span { color: var(--gold); }
+
+  /* ====================== HERO ====================== */
+  .hero {
+    padding: 100px 48px 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.1s forwards;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+  }
+  .eyebrow .pill {
+    display: inline-block;
+    padding: 4px 10px;
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 999px;
+    font-size: 10px;
+    margin-left: 8px;
+  }
+
+  h1.hero-title {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: clamp(44px, 7vw, 96px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    max-width: 1100px;
+    opacity: 0;
+    animation: fadeUp 1s 0.25s forwards;
+  }
+  h1.hero-title em {
+    font-style: italic;
+    color: var(--navy);
+    position: relative;
+    display: inline-block;
+  }
+  h1.hero-title em::after {
+    content: '';
+    position: absolute;
+    bottom: 0.08em;
+    left: 0;
+    width: 100%;
+    height: 0.06em;
+    background: var(--gold);
+    transform-origin: left;
+    transform: scaleX(0);
+    animation: drawLine 1.2s 1.4s forwards;
+  }
+
+  .hero-sub {
+    font-size: clamp(17px, 1.3vw, 20px);
+    line-height: 1.55;
+    max-width: 640px;
+    color: var(--navy);
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.5s forwards;
+  }
+
+  .hero-cta-row {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.7s forwards;
+  }
+
+  .btn {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    padding: 18px 36px;
+    border-radius: 999px;
+    transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .btn-primary {
+    background: var(--navy);
+    color: var(--cream);
+    box-shadow: 0 6px 20px rgba(11, 27, 43, 0.18);
+  }
+  .btn-primary:hover {
+    background: #142a44;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(11, 27, 43, 0.28);
+  }
+  .btn-primary .arrow { transition: transform 0.3s; }
+  .btn-primary:hover .arrow { transform: translateX(4px); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--navy);
+    border: 1px solid var(--navy);
+    padding: 17px 35px;
+  }
+  .btn-ghost:hover { background: var(--navy); color: var(--cream); }
+
+  .hero-meta {
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* Floating ridge decoration */
+  .hero-deco {
+    position: absolute;
+    right: 48px;
+    top: 100px;
+    width: 380px;
+    opacity: 0;
+    animation: fadeIn 1.5s 1s forwards;
+    pointer-events: none;
+  }
+  @media (max-width: 1100px) { .hero-deco { display: none; } }
+
+  /* ====================== STAT STRIP ====================== */
+  .stat-strip {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 36px 48px;
+    max-width: 1280px;
+    margin: 40px auto 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
+  }
+  .stat {
+    border-left: 1px solid var(--line);
+    padding-left: 24px;
+  }
+  .stat:first-child { border-left: 0; padding-left: 0; }
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 48px;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .stat-num em { color: var(--gold); font-style: italic; }
+  .stat-label {
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+  }
+
+  /* ====================== VALUE SECTION ====================== */
+  .value {
+    padding: 120px 48px;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .value-head {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    margin-bottom: 80px;
+    align-items: end;
+  }
+  .value-eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .value-title {
+    font-family: var(--serif);
+    font-size: clamp(34px, 4.5vw, 60px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+  }
+  .value-title em { font-style: italic; }
+
+  .value-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .value-card {
+    background: var(--cream);
+    padding: 48px 40px;
+    transition: background 0.4s;
+  }
+  .value-card:hover { background: var(--cream-warm); }
+  .value-num {
+    font-family: var(--serif);
+    font-size: 22px;
+    color: var(--gold);
+    font-style: italic;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .value-num::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+  .value-card h3 {
+    font-family: var(--serif);
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 16px;
+    font-weight: 400;
+  }
+  .value-card p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ====================== FORM SECTION ====================== */
+  .form-section {
+    background: var(--navy);
+    color: var(--cream);
+    padding: 100px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .form-section::before {
+    content: '';
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212, 175, 55, 0.12), transparent 60%);
+    pointer-events: none;
+  }
+
+  .form-shell {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ----- Sidebar (step nav) ----- */
+  .sidebar {
+    position: sticky;
+    top: 100px;
+    align-self: start;
+    height: fit-content;
+  }
+  .sidebar-eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+  .progress-track {
+    height: 2px;
+    background: rgba(245, 241, 234, 0.12);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    width: 8.33%;
+    transition: width 0.5s cubic-bezier(0.2, 0, 0, 1);
+  }
+  .step-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .step-list li {
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    color: rgba(245, 241, 234, 0.45);
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  .step-list li:hover { color: rgba(245, 241, 234, 0.8); }
+  .step-list li.active {
+    color: var(--cream);
+    font-weight: 700;
+  }
+  .step-list li.completed { color: rgba(245, 241, 234, 0.7); }
+  .step-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(245, 241, 234, 0.3);
+    background: transparent;
+    flex-shrink: 0;
+    transition: all 0.3s;
+  }
+  .step-list li.active .step-dot {
+    background: var(--gold);
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.18);
+  }
+  .step-list li.completed .step-dot {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .step-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--gold);
+    min-width: 22px;
+  }
+
+  /* ----- Form panel ----- */
+  .form-panel {
+    background: rgba(245, 241, 234, 0.03);
+    border: 1px solid rgba(245, 241, 234, 0.08);
+    border-radius: 4px;
+    padding: 64px;
+    min-height: 600px;
+    position: relative;
+  }
+
+  .step {
+    display: none;
+    animation: stepIn 0.5s ease-out;
+  }
+  .step.active { display: block; }
+
+  .step-header {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid rgba(245, 241, 234, 0.1);
+  }
+  .step-meta {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+  .step-title {
+    font-family: var(--serif);
+    font-size: clamp(32px, 4vw, 48px);
+    line-height: 1.05;
+    letter-spacing: -0.015em;
+    font-weight: 400;
+    margin-bottom: 16px;
+  }
+  .step-title em { font-style: italic; color: var(--gold-soft); }
+  .step-intro {
+    color: rgba(245, 241, 234, 0.75);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 560px;
+  }
+
+  /* ----- Fields ----- */
+  .field {
+    margin-bottom: 32px;
+  }
+  .field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .field-row .field { margin-bottom: 32px; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(245, 241, 234, 0.7);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  label .req { color: var(--gold); margin-left: 4px; }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="url"],
+  textarea,
+  select {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(245, 241, 234, 0.2);
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 17px;
+    padding: 14px 0;
+    transition: border-color 0.3s;
+    border-radius: 0;
+    outline: none;
+  }
+  textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.55;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-bottom-color: var(--gold);
+  }
+  input::placeholder, textarea::placeholder {
+    color: rgba(245, 241, 234, 0.3);
+  }
+
+  /* Checkbox / radio cards */
+  .options { display: grid; gap: 10px; }
+  .options.cols-2 { grid-template-columns: 1fr 1fr; }
+  .opt {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid rgba(245, 241, 234, 0.12);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.25s;
+    user-select: none;
+    font-size: 15px;
+  }
+  .opt:hover {
+    border-color: rgba(212, 175, 55, 0.5);
+    background: rgba(212, 175, 55, 0.04);
+  }
+  .opt input { display: none; }
+  .opt .box {
+    width: 18px;
+    height: 18px;
+    border: 1px solid rgba(245, 241, 234, 0.35);
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .opt input[type="radio"] ~ .box { border-radius: 50%; }
+  .opt input:checked ~ .box {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .opt input:checked ~ .box::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--navy);
+    border-radius: 50%;
+  }
+  .opt input[type="checkbox"]:checked ~ .box::after {
+    width: 5px;
+    height: 9px;
+    border: solid var(--navy);
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+    background: transparent;
+    border-radius: 0;
+  }
+  .opt:has(input:checked) {
+    border-color: var(--gold);
+    background: rgba(212, 175, 55, 0.06);
+  }
+  .opt .opt-hint {
+    font-style: normal;
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 6px;
+    font-weight: 400;
+  }
+  .opt:has(input:checked) .opt-hint { color: var(--navy-soft); }
+
+  /* ----- Step nav (bottom) ----- */
+  .step-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(245, 241, 234, 0.1);
+  }
+  .step-back {
+    background: transparent;
+    border: none;
+    color: rgba(245, 241, 234, 0.6);
+    font-family: var(--sans);
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.3s;
+  }
+  .step-back:hover:not(:disabled) { color: var(--cream); }
+  .step-back:disabled { opacity: 0.3; cursor: not-allowed; }
+  .step-back .arr { display: inline-block; transition: transform 0.3s; }
+  .step-back:hover:not(:disabled) .arr { transform: translateX(-4px); }
+
+  .step-next {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 16px 36px;
+    border-radius: 999px;
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+  }
+  .step-next:hover {
+    background: var(--gold-soft);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.3);
+  }
+  .step-next .arr { transition: transform 0.3s; }
+  .step-next:hover .arr { transform: translateX(4px); }
+
+  /* ----- Confirmation ----- */
+  .confirmation {
+    display: none;
+    text-align: center;
+    padding: 80px 40px;
+  }
+  .confirmation.active { display: block; animation: stepIn 0.7s ease-out; }
+  .confirmation .check-mark {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy);
+    margin: 0 auto 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 800;
+  }
+  .confirmation h2 {
+    font-family: var(--serif);
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1.05;
+    margin-bottom: 24px;
+    font-weight: 400;
+  }
+  .confirmation h2 em { font-style: italic; color: var(--gold-soft); }
+  .confirmation p {
+    font-size: 17px;
+    color: rgba(245, 241, 234, 0.75);
+    max-width: 540px;
+    margin: 0 auto 16px;
+    line-height: 1.6;
+  }
+  .confirmation .timeline {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 720px;
+    margin: 56px auto 0;
+    text-align: left;
+  }
+  .timeline-item {
+    border-top: 2px solid var(--gold);
+    padding-top: 20px;
+  }
+  .timeline-item .step-time {
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--gold-soft);
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .timeline-item h4 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 8px;
+  }
+  .timeline-item p {
+    font-size: 14px;
+    color: rgba(245, 241, 234, 0.6);
+    margin: 0;
+    text-align: left;
+  }
+
+  /* ====================== FOOTER ====================== */
+  footer {
+    padding: 60px 48px 40px;
+    text-align: center;
+    background: var(--cream);
+    color: var(--muted);
+    font-size: 13px;
+    border-top: 1px solid var(--line);
+  }
+  footer .footer-mark {
+    margin-bottom: 16px;
+    font-family: var(--serif);
+    font-style: italic;
+    color: var(--navy);
+    font-size: 18px;
+  }
+  footer .footer-mark em { color: var(--gold); }
+
+  /* ====================== ANIMATIONS ====================== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes drawLine {
+    to { transform: scaleX(1); }
+  }
+  @keyframes stepIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scroll-triggered reveals */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s, transform 0.8s; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ====================== RESPONSIVE ====================== */
+  @media (max-width: 900px) {
+    nav { padding: 14px 24px; }
+    .hero, .value, .form-section { padding-left: 24px; padding-right: 24px; }
+    .hero { padding-top: 60px; padding-bottom: 60px; }
+    .stat-strip { grid-template-columns: repeat(2, 1fr); padding: 28px 24px; }
+    .stat:nth-child(3) { border-left: 0; padding-left: 0; }
+    .value-head { grid-template-columns: 1fr; gap: 24px; margin-bottom: 56px; }
+    .value-grid { grid-template-columns: 1fr; }
+    .form-shell { grid-template-columns: 1fr; gap: 32px; }
+    .sidebar { position: relative; top: 0; }
+    .step-list { display: none; }
+    .form-panel { padding: 32px 24px; }
+    .field-row { grid-template-columns: 1fr; }
+    .options.cols-2 { grid-template-columns: 1fr; }
+    .confirmation .timeline { grid-template-columns: 1fr; }
+  }
+
+  /* ====================== AMBIENT BACKGROUND ====================== */
+  #bg-art {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Soft warm glow — top right, like distant sunrise */
+  .sunrise {
+    position: absolute;
+    top: -380px;
+    right: -300px;
+    width: 1100px;
+    height: 1100px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at center,
+      rgba(216, 189, 16, 0.10),
+      rgba(216, 189, 16, 0.04) 32%,
+      transparent 65%
+    );
+    animation: sunrise-breathe 18s ease-in-out infinite alternate;
+  }
+  @keyframes sunrise-breathe {
+    from { transform: scale(1);    opacity: 0.7; }
+    to   { transform: scale(1.06); opacity: 1; }
+  }
+
+  /* Cool secondary glow — bottom left */
+  .moon-glow {
+    position: absolute;
+    bottom: -300px;
+    left: -260px;
+    width: 900px;
+    height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at center,
+      rgba(124, 145, 182, 0.16),
+      transparent 65%
+    );
+    filter: blur(30px);
+  }
+
+  /* Sparse stars (faint, ambient) */
+  .star {
+    position: absolute;
+    width: 3px; height: 3px;
+    background: rgba(216, 236, 248, 0.7);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(216, 236, 248, 0.45);
+    animation: star-twinkle 6s ease-in-out infinite;
+  }
+  .star.s1 { top: 11%; left: 14%; width: 4px; height: 4px; animation-delay: 0s; }
+  .star.s2 { top: 7%;  left: 36%; width: 3px; height: 3px; animation-delay: 1.6s; }
+  .star.s3 { top: 17%; left: 62%; width: 4px; height: 4px; animation-delay: 3.0s; }
+  .star.s4 { top: 5%;  left: 82%; width: 3px; height: 3px; animation-delay: 4.4s; }
+  .star.s5 { top: 22%; left: 28%; width: 2px; height: 2px; animation-delay: 2.2s; }
+
+  @keyframes star-twinkle {
+    0%, 100% { opacity: 0.25; }
+    50%      { opacity: 1; }
+  }
+
+  /* Layered mountain horizon — fixed at viewport bottom, three depths */
+  .mountains {
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    width: 104%;
+    bottom: 0;
+    pointer-events: none;
+    display: block;
+  }
+  .mountains.far  { height: 38vh; max-height: 420px; }
+  .mountains.mid  { height: 32vh; max-height: 360px; }
+  .mountains.near { height: 26vh; max-height: 300px; }
+
+  /* Single accent ridgeline outline (the "nearest" peak in gold) */
+  .ridge-accent {
+    position: absolute;
+    left: -2%;
+    right: -2%;
+    width: 104%;
+    bottom: 24vh;
+    height: 60px;
+    pointer-events: none;
+  }
+
+  /* Keep all content layered above the background art */
+  nav, header, main, section, footer { position: relative; z-index: 2; }
+
+  /* ====================== PARTICLE HERO (dark cinematic) ====================== */
+  @property --p {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: 0%;
+  }
+
+  .hero-dark {
+    position: relative;
+    width: 100%;
+    min-height: 720px;
+    overflow: hidden;
+    background: #05060f;
+    background-image: linear-gradient(0deg, rgba(216, 236, 248, 0.06), rgba(152, 192, 239, 0.06));
+    color: #d8ecf8;
+    padding: 100px 32px 80px;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: max(calc(min(600px, 80vh) * 0.03), 10px);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    isolation: isolate;
+  }
+
+  /* Particle canvas */
+  .hero-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0;
+    animation: ph-load 0.4s ease-in-out forwards;
+  }
+
+  /* Spotlight cones */
+  .hero-spotlight {
+    pointer-events: none;
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    margin: 0 auto;
+    height: 42em;
+    width: 100%;
+    overflow: hidden;
+    z-index: 0;
+    transition: filter 1s ease-in-out;
+  }
+  .spotlight-cone {
+    border-radius: 0 0 50% 50%;
+    position: absolute;
+    left: 0; right: 0;
+    margin: 0 auto;
+    top: 3em;
+    width: 30em;
+    height: max(42em, 86vh);
+    background-image: conic-gradient(
+      from 0deg at 50% -5%,
+      transparent 45%,
+      rgba(124, 145, 182, .3) 49%,
+      rgba(124, 145, 182, .5) 50%,
+      rgba(124, 145, 182, .3) 51%,
+      transparent 55%
+    );
+    transform-origin: 50% 0;
+    filter: blur(15px) opacity(0.5);
+  }
+  .spotlight-cone.c1 { transform: rotate(20deg);  animation: ph-load 2s ease-in-out forwards, ph-loadrot 2s ease-in-out forwards, ph-spotlight 17s ease-in-out infinite; }
+  .spotlight-cone.c2 { transform: rotate(-20deg); animation: ph-load 2s ease-in-out forwards, ph-loadrot 2s ease-in-out forwards, ph-spotlight 14s ease-in-out infinite; }
+  .spotlight-cone.c3 { transform: rotate(0deg);   animation: ph-load 2s ease-in-out forwards, ph-loadrot 2s ease-in-out forwards, ph-spotlight 21s ease-in-out infinite reverse; }
+
+  /* Accent guide lines */
+  .hero-accents {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 42em;
+    z-index: 0;
+  }
+  .hero-accents .line-h {
+    position: absolute;
+    left: 0; right: 0;
+    margin: auto;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(186, 215, 247, .18), transparent);
+    opacity: 0;
+    transform: scale(0);
+    animation: ph-accentload 2s ease-out 2.4s forwards;
+  }
+  .hero-accents .line-v {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: rgba(186, 215, 247, .14);
+    opacity: 0;
+    transform: scale(0);
+    animation: ph-accentload 2s ease-out 2s forwards;
+  }
+
+  /* Mode toggle dot */
+  .mode-toggle {
+    position: absolute;
+    left: 0; right: 0;
+    margin: 0 auto;
+    top: 2em;
+    width: 1.8em;
+    height: 1.8em;
+    border-radius: 50%;
+    background: black;
+    border: none;
+    box-shadow: 0 0 1em 0 #98c0ef;
+    cursor: pointer;
+    transition: box-shadow 1s ease-in-out;
+    z-index: 5;
+    padding: 0;
+    opacity: 0;
+    animation: ph-load 2s ease-in 2.2s forwards;
+  }
+  .mode-toggle:hover { box-shadow: -0.3em 0.1em 0.2em 0 #d8bd10; }
+  .hero-dark.gold-mode .mode-toggle { box-shadow: 0 0 1em 0 #d8bd10; }
+  .hero-dark.gold-mode .mode-toggle:hover { box-shadow: -0.3em 0.1em 0.2em 0 #98c0ef; }
+
+  /* Hero content (text) */
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 1100px;
+    padding-top: 100px;
+    width: 100%;
+  }
+  .hero-eyebrow-dark {
+    font-family: var(--sans);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: #d8bd10;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: ph-load 1.6s ease-in 1.5s forwards;
+  }
+  .hero-eyebrow-dark .pill {
+    display: inline-block;
+    padding: 4px 10px;
+    margin-left: 10px;
+    border: 1px solid rgba(216, 189, 16, 0.3);
+    border-radius: 999px;
+    font-size: 10px;
+    color: #ffd87a;
+  }
+
+  .hero-title-dark {
+    position: relative;
+    font-family: var(--serif);
+    font-size: clamp(52px, 8.5vw, 116px);
+    line-height: 0.98;
+    letter-spacing: -0.02em;
+    font-weight: 400;
+    margin: 0 auto 36px;
+    max-width: 17ch;
+    color: #9dc3f7;
+    background: linear-gradient(0deg, #bad1f1 30%, #ffffff 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 16px rgba(174, 207, 242, .24);
+    opacity: 0;
+    transform: translateY(-1em);
+    animation: ph-load 2s ease-in-out 0.6s forwards, ph-up 1.4s ease-out 0.6s forwards;
+  }
+  .hero-title-dark em {
+    font-style: italic;
+    background:
+      radial-gradient(2em 2em at 50% 50%,
+        transparent calc(var(--p, 0%) - 2em),
+        #fff calc(var(--p, 0%) - 1em),
+        #fff calc(var(--p, 0%) - 0.4em),
+        transparent var(--p, 0%)
+      ),
+      linear-gradient(0deg, #ffd87a 30%, #d8bd10 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 2px 24px rgba(216, 189, 16, .35);
+    transition: --p 3s linear;
+    animation: ph-pulse 10s linear 1.2s infinite;
+  }
+
+  .hero-sub-dark {
+    font-size: clamp(16px, 1.4vw, 20px);
+    line-height: 1.6;
+    max-width: 620px;
+    margin: 0 auto 40px;
+    color: #d8ecf8;
+    background: linear-gradient(0deg, #d8ecf8 0, #98c0ef 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    transform: translateY(1em);
+    animation: ph-load 2s ease-out 2s forwards, ph-up 1.4s ease-out 2s forwards;
+  }
+
+  .hero-cta-dark {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    opacity: 0;
+    animation: ph-load 2s ease-out 2.4s forwards;
+  }
+  .btn-primary-dark {
+    background: #d8bd10;
+    color: #05060f;
+    padding: 16px 36px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-family: var(--sans);
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 0 24px rgba(216, 189, 16, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: all 0.3s cubic-bezier(.16, 1, .3, 1);
+  }
+  .btn-primary-dark:hover {
+    background: #f5d432;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(216, 189, 16, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  .btn-primary-dark .arr { transition: transform 0.3s ease; }
+  .btn-primary-dark:hover .arr { transform: translateX(4px); }
+
+  .hero-meta-dark {
+    font-family: var(--sans);
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #98c0ef;
+    opacity: 0.8;
+  }
+  .hero-email-dark {
+    margin-top: 32px;
+    font-size: 14px;
+    color: #98c0ef;
+    opacity: 0;
+    animation: ph-load 2s ease-out 2.8s forwards;
+  }
+  .hero-email-dark a {
+    color: #d8bd10;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: rgba(216, 189, 16, 0.4);
+    font-weight: 700;
+  }
+  .hero-email-dark a:hover { text-decoration-color: #d8bd10; }
+
+  /* Gold-mode toggle */
+  .hero-dark.gold-mode {
+    filter: hue-rotate(0deg);
+  }
+  .hero-dark.gold-mode .hero-canvas {
+    filter: drop-shadow(2em 4em 0px #d8bd10) drop-shadow(-8em -14em 0px #d8bd10);
+  }
+  .hero-dark.gold-mode .hero-spotlight {
+    filter: invert(1) brightness(4.7) opacity(0.5);
+  }
+  .hero-dark.gold-mode .hero-title-dark,
+  .hero-dark.gold-mode .hero-sub-dark,
+  .hero-dark.gold-mode .hero-eyebrow-dark {
+    filter: invert(1) brightness(4.7);
+  }
+  .hero-dark.gold-mode .hero-title-dark em { filter: hue-rotate(0deg); }
+
+  /* Nav over dark hero — adapts via body.dark-top class */
+  body.dark-top nav {
+    background: rgba(5, 6, 15, 0.45);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(186, 215, 247, 0.08);
+  }
+  body.dark-top nav .logo { color: #d8ecf8; }
+  body.dark-top nav .logo .logo-mark path { stroke: #d8ecf8; }
+  body.dark-top nav .logo .logo-word { color: #d8ecf8; }
+  body.dark-top nav .nav-meta { color: #98c0ef; }
+  body.dark-top nav .nav-meta span { color: #d8bd10; }
+
+  /* Mobile-specific hero tuning */
+  @media (max-width: 700px) {
+    .hero-dark {
+      min-height: 620px;
+      padding: 70px 18px 56px;
+    }
+    .hero-content {
+      padding-top: 80px;
+      max-width: 100%;
+    }
+    .hero-eyebrow-dark {
+      font-size: 11px;
+      letter-spacing: 3px;
+      margin-bottom: 24px;
+    }
+    .hero-eyebrow-dark .pill { display: inline-block; }
+    .hero-title-dark {
+      font-size: clamp(38px, 11vw, 64px);
+      max-width: 100%;
+      line-height: 1.02;
+      margin-bottom: 28px;
+      padding: 0 4px;
+    }
+    .hero-sub-dark {
+      font-size: 15px;
+      line-height: 1.55;
+      margin-bottom: 32px;
+      padding: 0 8px;
+    }
+    .btn-primary-dark {
+      padding: 16px 32px;
+      font-size: 12px;
+      letter-spacing: 1.2px;
+      min-height: 48px;  /* iOS tap target */
+    }
+    .hero-meta-dark {
+      font-size: 10px;
+      letter-spacing: 2px;
+      padding: 0 8px;
+      text-align: center;
+    }
+    .hero-email-dark {
+      font-size: 13px;
+      margin-top: 28px;
+      padding: 0 16px;
+    }
+    .hero-email-dark a {
+      display: inline-block;
+      padding: 6px 0;  /* bigger tap area */
+    }
+    .mode-toggle {
+      width: 1.5em;
+      height: 1.5em;
+      top: 1.5em;
+    }
+    /* Spotlight scaling — keep them visible but contained */
+    .spotlight-cone { width: 22em; }
+  }
+
+  /* Very small phones (< 380px) */
+  @media (max-width: 380px) {
+    .hero-dark { padding: 60px 14px 48px; }
+    .hero-title-dark { font-size: clamp(32px, 11vw, 48px); }
+    .hero-content { padding-top: 70px; }
+  }
+
+  /* Particle hero animations (prefixed ph- to avoid clash) */
+  @keyframes ph-load { 0% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes ph-up { 100% { transform: translateY(0); } }
+  @keyframes ph-loadrot {
+    0% { transform: rotate(0deg) scale(0); }
+    100% { transform: scale(1); }
+  }
+  @keyframes ph-accentload {
+    0% { opacity: 0; transform: scale(0); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  @keyframes ph-pulse {
+    0%   { --p: 0%; }
+    50%  { --p: 300%; }
+    100% { --p: 300%; }
+  }
+  @keyframes ph-spotlight {
+    0%, 100% { transform: rotateZ(0deg) scale(1);   filter: blur(15px) opacity(0.5); }
+    20%      { transform: rotateZ(-1deg) scale(1.2); filter: blur(16px) opacity(0.6); }
+    40%      { transform: rotateZ(2deg) scale(1.3);  filter: blur(14px) opacity(0.4); }
+    60%      { transform: rotateZ(-2deg) scale(1.2); filter: blur(15px) opacity(0.6); }
+    80%      { transform: rotateZ(1deg) scale(1.1);  filter: blur(13px) opacity(0.4); }
+  }
+
+  /* ====================== TESTIMONIALS ====================== */
+  .testimonials {
+    padding: 100px 48px 80px;
+    max-width: 1280px;
+    margin: 0 auto;
+    border-top: 1px solid var(--line);
+  }
+  .testimonials-head {
+    text-align: center;
+    margin-bottom: 56px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .testimonials-eyebrow {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .testimonials-title {
+    font-family: var(--serif);
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 28px;
+    color: var(--navy);
+  }
+  .testimonials-title em { font-style: italic; color: var(--gold); }
+  .testimonials-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 22px;
+    background: var(--cream-warm);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy-soft);
+  }
+  .testimonials-rating strong { color: var(--navy); }
+  .stars { display: inline-flex; gap: 2px; color: var(--gold); }
+  .stars svg { width: 15px; height: 15px; fill: currentColor; }
+
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .t-card {
+    background: var(--cream);
+    border: 1px solid var(--line);
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .t-card::before {
+    content: '"';
+    position: absolute;
+    top: 12px;
+    right: 24px;
+    font-family: var(--serif);
+    font-size: 90px;
+    line-height: 1;
+    color: var(--gold);
+    opacity: 0.2;
+  }
+  .t-card:hover {
+    border-color: var(--gold);
+    transform: translateY(-4px);
+    box-shadow: 0 22px 48px -22px rgba(11, 27, 43, 0.18);
+  }
+  .t-card:hover::before { opacity: 0.35; }
+  .t-stars {
+    color: var(--gold);
+    display: flex;
+    gap: 2px;
+  }
+  .t-stars svg { width: 17px; height: 17px; fill: currentColor; }
+  .t-quote {
+    font-family: var(--serif);
+    font-size: 21px;
+    line-height: 1.4;
+    color: var(--navy);
+    flex: 1;
+    font-style: normal;
+  }
+  .t-author {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+  .t-avatar {
+    width: 44px; height: 44px;
+    background: var(--navy);
+    color: var(--cream);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    border: 2px solid var(--gold);
+  }
+  .t-author-info { display: flex; flex-direction: column; line-height: 1.3; }
+  .t-name {
+    font-weight: 700;
+    color: var(--navy);
+    font-size: 14px;
+  }
+  .t-meta {
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    margin-top: 2px;
+  }
+  .t-result {
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* Trust badges */
+  .trust-row {
+    margin-top: 48px;
+    padding: 32px;
+    background: var(--cream-warm);
+    border: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+  .trust-badge {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .trust-badge-icon {
+    width: 36px; height: 36px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .trust-badge-icon svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .trust-badge-title {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--navy);
+    letter-spacing: 0.4px;
+  }
+  .trust-badge-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.45;
+    max-width: 180px;
+  }
+
+  @media (max-width: 900px) {
+    .testimonials { padding: 64px 24px; }
+    .testimonials-grid { grid-template-columns: 1fr; gap: 16px; }
+    .trust-row { grid-template-columns: repeat(2, 1fr); padding: 24px; }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .sunrise, .star { animation: none !important; }
+  }
+  @media (max-width: 900px) {
+    .mountains.far  { height: 28vh; }
+    .mountains.mid  { height: 24vh; }
+    .mountains.near { height: 20vh; }
+    .ridge-accent { bottom: 20vh; }
+  }
+
+  /* ====================================================================== */
+  /*  DARK-THEME OVERRIDES — fix inverted elements after global var flip      */
+  /* ====================================================================== */
+
+  /* Form section: explicit dark bg + soft gold halo */
+  .form-section {
+    background: linear-gradient(180deg, #07091a 0%, #05060f 100%);
+    color: #d8ecf8;
+    border-top: 1px solid rgba(186, 215, 247, 0.06);
+    border-bottom: 1px solid rgba(186, 215, 247, 0.06);
+  }
+  .form-section::before {
+    background: radial-gradient(circle, rgba(216, 189, 16, 0.10), transparent 60%);
+  }
+
+  /* Form panel: subtle glass elevation on dark */
+  .form-panel {
+    background: rgba(216, 236, 248, 0.025);
+    border: 1px solid rgba(186, 215, 247, 0.10);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  /* Value cards: lift slightly above body bg */
+  .value-grid {
+    background: rgba(186, 215, 247, 0.08);
+    border: 1px solid rgba(186, 215, 247, 0.10);
+  }
+  .value-card {
+    background: #0a0c1c;
+    color: #d8ecf8;
+    transition: background 0.4s, transform 0.4s;
+  }
+  .value-card:hover {
+    background: #0e1228;
+  }
+  .value-card h3 { color: #d8ecf8; }
+  .value-card p { color: #98c0ef; }
+
+  /* Stat strip: refine borders + accents */
+  .stat-strip {
+    border-top: 1px solid rgba(186, 215, 247, 0.10);
+    border-bottom: 1px solid rgba(186, 215, 247, 0.10);
+  }
+  .stat { border-left-color: rgba(186, 215, 247, 0.10); }
+  .stat-num { color: #d8ecf8; }
+
+  /* Testimonials section refinements */
+  .testimonials { border-top-color: rgba(186, 215, 247, 0.08); }
+  .testimonials-title { color: #d8ecf8; }
+  .testimonials-rating {
+    background: rgba(216, 236, 248, 0.04);
+    border: 1px solid rgba(186, 215, 247, 0.10);
+    color: #98c0ef;
+  }
+  .testimonials-rating strong { color: #d8ecf8; }
+
+  /* Testimonial cards */
+  .t-card {
+    background: #0a0c1c;
+    border: 1px solid rgba(186, 215, 247, 0.10);
+    color: #d8ecf8;
+  }
+  .t-card:hover {
+    border-color: rgba(216, 189, 16, 0.45);
+    box-shadow: 0 22px 48px -22px rgba(216, 189, 16, 0.25);
+  }
+  .t-quote { color: #d8ecf8; }
+  .t-author { border-top-color: rgba(186, 215, 247, 0.08); }
+  .t-name { color: #d8ecf8; }
+  .t-meta { color: #6c8aae; }
+  .t-avatar {
+    background: #d8bd10;
+    color: #05060f;
+    border: 2px solid rgba(216, 189, 16, 0.6);
+  }
+
+  /* Trust badges */
+  .trust-row {
+    background: rgba(216, 236, 248, 0.03);
+    border: 1px solid rgba(186, 215, 247, 0.08);
+  }
+  .trust-badge-title { color: #d8ecf8; }
+  .trust-badge-desc { color: #98c0ef; }
+
+  /* Form: option dots — readable contrast on gold check */
+  .opt input:checked ~ .box::after {
+    background: #05060f !important;
+  }
+  .opt input[type="checkbox"]:checked ~ .box::after {
+    border-color: #05060f !important;
+    background: transparent !important;
+  }
+
+  /* Continue button: dark text on gold */
+  .step-next { color: #05060f; }
+  .step-next:hover { color: #05060f; }
+
+  /* Footer */
+  footer {
+    background: #05060f;
+    color: #6c8aae;
+    border-top: 1px solid rgba(186, 215, 247, 0.08);
+  }
+  footer .footer-mark { color: #d8ecf8; }
+  footer .footer-mark em { color: #d8bd10; }
+  footer a { color: #d8ecf8 !important; text-decoration-color: #d8bd10 !important; }
+
+  /* Smooth scroll: lift major sections so the bg-art glows show through */
+  .stat-strip, .value, .testimonials, .form-section, footer {
+    background-color: transparent;
+  }
+  .form-section { background: linear-gradient(180deg, rgba(7, 9, 26, 0.85) 0%, rgba(5, 6, 15, 0.95) 100%); }
+
+  /* Better form-panel visibility */
+  .form-panel { background: rgba(216, 236, 248, 0.03); }
+
+  /* Section label/eyebrow accents brighter */
+  .value-eyebrow { color: #d8bd10; }
+  .testimonials-eyebrow { color: #d8bd10; }
+  .sidebar-eyebrow { color: #d8bd10; }
+  .step-meta { color: #d8bd10 !important; }
+  .pill {
+    background: rgba(216, 189, 16, 0.10);
+    border: 1px solid rgba(216, 189, 16, 0.25);
+    color: #ffd87a !important;
+  }
+
+  /* Step header titles inside form */
+  .step-title { color: #d8ecf8; }
+  .step-title em { color: #d8bd10; }
+  .step-intro { color: #98c0ef; }
+
+  /* Input fields keep their dark-form look (already defined above) */
+
+  /* Confirmation panel */
+  .confirmation h2 { color: #d8ecf8; }
+  .confirmation h2 em { color: #d8bd10; }
+  .confirmation p { color: #98c0ef; }
+  .check-mark { color: #d8bd10; }
+  .timeline-item { background: rgba(216, 236, 248, 0.03); border: 1px solid rgba(186, 215, 247, 0.10); }
+  .step-time { color: #d8bd10; }
+
+  /* ============= CRITICAL DARK-THEME COLOR FIXES ============= */
+  /* Form inputs: light text on dark form panel */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="url"],
+  textarea,
+  select {
+    color: #d8ecf8 !important;
+    font-size: 16px;  /* prevents iOS zoom on focus */
+  }
+  input::placeholder, textarea::placeholder {
+    color: rgba(216, 236, 248, 0.35) !important;
+  }
+  label {
+    color: rgba(216, 236, 248, 0.75) !important;
+  }
+  /* Sidebar steps */
+  .step-list li { color: rgba(216, 236, 248, 0.45); }
+  .step-list li:hover { color: rgba(216, 236, 248, 0.85); }
+  .step-list li.active { color: #d8ecf8; }
+  .step-list li.completed { color: rgba(216, 236, 248, 0.7); }
+  .step-list li .step-dot { border-color: rgba(216, 236, 248, 0.3); }
+  /* Back button hover */
+  .step-back { color: rgba(216, 236, 248, 0.6); }
+  .step-back:hover:not(:disabled) { color: #d8ecf8; }
+  /* Checkbox/radio option borders + hover */
+  .opt {
+    border-color: rgba(216, 236, 248, 0.12);
+    color: #d8ecf8;
+  }
+  .opt:hover {
+    border-color: rgba(216, 189, 16, 0.5);
+    background: rgba(216, 189, 16, 0.06);
+  }
+  .opt .box { border-color: rgba(216, 236, 248, 0.35); }
+  .opt:has(input:checked) {
+    background: rgba(216, 189, 16, 0.08);
+    border-color: rgba(216, 189, 16, 0.6);
+  }
+  .opt-hint { color: rgba(216, 236, 248, 0.5) !important; }
+
+  /* Progress bar track */
+  .progress-track { background: rgba(216, 236, 248, 0.10); }
+
+  /* Step nav top border */
+  .step-nav { border-top-color: rgba(216, 236, 248, 0.10) !important; }
+
+  /* ============= FINAL MOBILE POLISH ============= */
+  @media (max-width: 700px) {
+    nav { padding: 12px 16px; }
+    .nav-meta { font-size: 10px; letter-spacing: 1.5px; }
+    .logo-mark { width: 32px; height: 22px; }
+    .logo-word { font-size: 15px; letter-spacing: 2px; }
+
+    /* Form section */
+    .form-section { padding: 60px 16px 80px !important; }
+    .form-panel { padding: 28px 20px !important; }
+    .step-title { font-size: clamp(28px, 7vw, 36px) !important; }
+    .step-meta { font-size: 10px !important; letter-spacing: 2px !important; }
+    .step-intro { font-size: 14px !important; }
+
+    /* Form options — bigger tap targets */
+    .opt { padding: 14px 16px; min-height: 52px; font-size: 14px; }
+    .opt .box { width: 20px; height: 20px; }
+
+    /* Buttons */
+    .step-next { padding: 14px 28px; min-height: 48px; font-size: 12px; }
+    .step-back { padding: 12px 0; min-height: 44px; }
+
+    /* Stat strip */
+    .stat-num { font-size: 36px; }
+    .stat-label { font-size: 10px; letter-spacing: 1.5px; }
+
+    /* Value section */
+    .value { padding: 80px 16px !important; }
+    .value-title { font-size: clamp(28px, 6vw, 40px); }
+    .value-card { padding: 32px 24px; }
+    .value-card h3 { font-size: 22px; }
+
+    /* Testimonials */
+    .testimonials { padding: 64px 16px !important; }
+    .testimonials-title { font-size: clamp(28px, 7vw, 40px); }
+    .t-card { padding: 24px 20px; }
+    .t-quote { font-size: 18px; }
+    .testimonials-rating { padding: 8px 18px; font-size: 12px; flex-wrap: wrap; justify-content: center; gap: 8px; text-align: center; }
+    .stars svg { width: 13px; height: 13px; }
+
+    /* Trust row */
+    .trust-row { grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px 16px; }
+    .trust-badge-icon { width: 32px; height: 32px; }
+    .trust-badge-title { font-size: 12px; }
+    .trust-badge-desc { font-size: 11px; }
+
+    /* Footer */
+    footer { padding: 40px 16px 32px; font-size: 11px; }
+    footer .footer-mark { font-size: 16px; }
+
+    /* Confirmation */
+    .confirmation { padding: 40px 16px !important; }
+
+    /* Sunrise/moon glow scale down so they don't look like washed-out blobs on tiny screens */
+    .sunrise { width: 600px; height: 600px; top: -200px; right: -150px; }
+    .moon-glow { width: 500px; height: 500px; bottom: -180px; left: -160px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= BACKGROUND: SUMMIT AT DAWN ================= -->
+<div id="bg-art" aria-hidden="true">
+  <!-- Sunrise glow (upper right) and soft moonlight (lower left) -->
+  <div class="sunrise"></div>
+  <div class="moon-glow"></div>
+
+  <!-- Sparse stars in the upper sky -->
+  <span class="star s1"></span>
+  <span class="star s2"></span>
+  <span class="star s3"></span>
+  <span class="star s4"></span>
+  <span class="star s5"></span>
+
+</div>
+
+<!-- ================= NAV ================= -->
+<nav>
+  <a href="#" class="logo" aria-label="Ridgeline home">
+    <svg class="logo-mark" viewBox="0 0 80 56" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M 4 50 L 18 36 L 28 42 L 42 22 L 52 30 L 66 6 L 76 38" fill="none" stroke="#d8ecf8" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" />
+      <circle cx="66" cy="6" r="4.5" fill="#d8bd10" />
+    </svg>
+    <span class="logo-word">RIDGELINE</span>
+  </a>
+  <div class="nav-meta">Discovery <span>·</span> Step <span id="navStep">1</span> of 12</div>
+</nav>
+
+<!-- ================= PARTICLE HERO (cinematic dark) ================= -->
+<header class="hero-dark" id="heroDark">
+  <!-- Spotlight cones from top -->
+  <div class="hero-spotlight">
+    <div class="spotlight-cone c1"></div>
+    <div class="spotlight-cone c2"></div>
+    <div class="spotlight-cone c3"></div>
+  </div>
+
+  <!-- Mode toggle dot (click to flip color scheme) -->
+  <button class="mode-toggle" id="modeToggle" type="button" aria-label="Toggle gold mode"></button>
+
+  <!-- Particle canvas (rising white starfield) -->
+  <canvas class="hero-canvas" id="particleCanvas"></canvas>
+
+  <!-- Hero content -->
+  <div class="hero-content">
+    <div class="hero-eyebrow-dark">Client Discovery <span class="pill">2026</span></div>
+    <h1 class="hero-title-dark">
+      Let's build the website that <em>actually</em> brings you clients.
+    </h1>
+    <p class="hero-sub-dark">
+      This isn't a form — it's a 10-minute conversation. The more we understand about your business, the sharper the plan we deliver. Your custom blueprint hits your inbox in 48 hours, fixed price, no surprises.
+    </p>
+    <div class="hero-cta-dark">
+      <button class="btn-primary-dark" type="button" onclick="document.getElementById('form').scrollIntoView({behavior:'smooth'})">
+        Begin Discovery <span class="arr">→</span>
+      </button>
+      <span class="hero-meta-dark">10–15 min · 100% confidential · No commitment</span>
+    </div>
+    <div class="hero-email-dark">
+      Prefer email? <a href="mailto:llcridgeline@gmail.com">llcridgeline@gmail.com</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= STAT STRIP ================= -->
+<section class="stat-strip">
+  <div class="stat">
+    <div class="stat-num"><em>48h</em></div>
+    <div class="stat-label">Custom Plan Delivery</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">10<em>min</em></div>
+    <div class="stat-label">To Complete</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">$0</div>
+    <div class="stat-label">To Start</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">1:1</div>
+    <div class="stat-label">Direct With Founder</div>
+  </div>
+</section>
+
+<!-- ================= VALUE / WHY ================= -->
+<section class="value reveal">
+  <div class="value-head">
+    <div>
+      <div class="value-eyebrow">Why this form exists</div>
+    </div>
+    <h2 class="value-title">
+      Most agencies guess. <em>We don't.</em><br/>The detail you give here becomes the strategy we ship.
+    </h2>
+  </div>
+
+  <div class="value-grid">
+    <div class="value-card">
+      <div class="value-num">01</div>
+      <h3>A custom plan,<br/>not a template</h3>
+      <p>Within 48 hours you get a full strategy doc — pages, flows, automations, copy direction, fixed price. Built from your answers, not a stock framework.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-num">02</div>
+      <h3>Designed to convert,<br/>not just impress</h3>
+      <p>Every page is built around one outcome: bringing in real customers. Booking, lead capture, automated follow-up — all baked in from day one.</p>
+    </div>
+    <div class="value-card">
+      <div class="value-num">03</div>
+      <h3>One point of contact.<br/>That's it.</h3>
+      <p>You talk directly to me — no account managers, no handoffs. Faster decisions, sharper work, and a website that actually reflects you.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TESTIMONIALS ================= -->
+<!-- IMPORTANT: These are PLACEHOLDER reviews for visual layout. Before running ads, replace each with a real client quote, name, and business. FTC requires endorsements be truthful. -->
+<section class="testimonials reveal">
+  <div class="testimonials-head">
+    <div class="testimonials-eyebrow">★ Trust That Stands Up ★</div>
+    <h2 class="testimonials-title">Reviews from clients who <em>climbed</em> with us.</h2>
+    <div class="testimonials-rating">
+      <span class="stars" aria-label="5 out of 5 stars">
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+      </span>
+      <span><strong>5.0 average</strong> · every client we've launched would hire us again</span>
+    </div>
+  </div>
+
+  <div class="testimonials-grid">
+
+    <!-- TESTIMONIAL 1 -->
+    <article class="t-card">
+      <div class="t-stars" aria-label="5 stars">
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+      </div>
+      <p class="t-quote">"Within three weeks of launch, our online bookings doubled. Ridgeline didn't just build us a site — they built us a system that pays for itself."</p>
+      <div class="t-author">
+        <div class="t-avatar" aria-hidden="true">M</div>
+        <div class="t-author-info">
+          <span class="t-name">Maria L.</span>
+          <span class="t-meta">Bloom Beauty Bar · San Diego, CA</span>
+          <span class="t-result">+118% bookings in 30 days</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- TESTIMONIAL 2 -->
+    <article class="t-card">
+      <div class="t-stars" aria-label="5 stars">
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+      </div>
+      <p class="t-quote">"I was burning cash on ads but losing leads at the website. Ridgeline rebuilt our funnel — the chatbot alone closes deals while I sleep."</p>
+      <div class="t-author">
+        <div class="t-avatar" aria-hidden="true">M</div>
+        <div class="t-author-info">
+          <span class="t-name">Marcus T.</span>
+          <span class="t-meta">Iron Forge Gym · Dallas, TX</span>
+          <span class="t-result">3.2× ROI on ad spend</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- TESTIMONIAL 3 -->
+    <article class="t-card">
+      <div class="t-stars" aria-label="5 stars">
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2 l3 7 h7 l-5.5 4.5 2 7 -6.5 -4.5 -6.5 4.5 2 -7 L2 9 h7 z"/></svg>
+      </div>
+      <p class="t-quote">"We needed online ordering, reservations, and a way to stop answering the phone all day. They delivered in 4 weeks. We got our nights back."</p>
+      <div class="t-author">
+        <div class="t-avatar" aria-hidden="true">S</div>
+        <div class="t-author-info">
+          <span class="t-name">Sofia C.</span>
+          <span class="t-meta">Casa Verde Restaurant · Phoenix, AZ</span>
+          <span class="t-result">Saved 14 hrs/week</span>
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- TRUST BADGES — these are real, defensible promises -->
+  <div class="trust-row">
+    <div class="trust-badge">
+      <div class="trust-badge-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2 L4 6 v6 c0 5 3.5 8.5 8 10 c4.5 -1.5 8 -5 8 -10 V6 z"/><path d="M9 12 l2 2 l4 -4"/></svg>
+      </div>
+      <div class="trust-badge-title">14-Day Guarantee</div>
+      <div class="trust-badge-desc">Not satisfied? Full refund, no questions.</div>
+    </div>
+    <div class="trust-badge">
+      <div class="trust-badge-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2 v20 M5 8 h11 a3 3 0 0 1 0 6 H8 a3 3 0 0 0 0 6 h11"/></svg>
+      </div>
+      <div class="trust-badge-title">Fixed Pricing</div>
+      <div class="trust-badge-desc">One scope, one price. No surprises.</div>
+    </div>
+    <div class="trust-badge">
+      <div class="trust-badge-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7 v5 l3 2"/></svg>
+      </div>
+      <div class="trust-badge-title">Custom Plan in 48h</div>
+      <div class="trust-badge-desc">Your blueprint hits your inbox in 2 days.</div>
+    </div>
+    <div class="trust-badge">
+      <div class="trust-badge-icon">
+        <svg viewBox="0 0 24 24"><path d="M3 21 V10 L12 4 L21 10 V21 Z"/><path d="M9 21 V12 H15 V21"/></svg>
+      </div>
+      <div class="trust-badge-title">Built by a Human</div>
+      <div class="trust-badge-desc">No templates. No outsourcing. Custom-coded.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FORM ================= -->
+<section class="form-section" id="form">
+  <div class="form-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-eyebrow">Your Progress</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <ul class="step-list" id="stepList">
+        <li class="active" data-step="1"><span class="step-dot"></span><span class="step-num">01</span> About You</li>
+        <li data-step="2"><span class="step-dot"></span><span class="step-num">02</span> Goals</li>
+        <li data-step="3"><span class="step-dot"></span><span class="step-num">03</span> Problems</li>
+        <li data-step="4"><span class="step-dot"></span><span class="step-num">04</span> Strengths</li>
+        <li data-step="5"><span class="step-dot"></span><span class="step-num">05</span> Weaknesses</li>
+        <li data-step="6"><span class="step-dot"></span><span class="step-num">06</span> Competitors</li>
+        <li data-step="7"><span class="step-dot"></span><span class="step-num">07</span> Look &amp; Feel</li>
+        <li data-step="8"><span class="step-dot"></span><span class="step-num">08</span> Pages</li>
+        <li data-step="9"><span class="step-dot"></span><span class="step-num">09</span> Automation</li>
+        <li data-step="10"><span class="step-dot"></span><span class="step-num">10</span> Google &amp; SEO</li>
+        <li data-step="11"><span class="step-dot"></span><span class="step-num">11</span> Budget &amp; Timeline</li>
+        <li data-step="12"><span class="step-dot"></span><span class="step-num">12</span> Final Notes</li>
+      </ul>
+    </aside>
+
+    <!-- Form panel -->
+    <div class="form-panel">
+      <form id="discoveryForm" novalidate>
+
+      <!-- ===== Step 1 ===== -->
+      <section class="step active" data-step="1">
+        <div class="step-header">
+          <div class="step-meta">Step 01 of 12 · About You</div>
+          <h2 class="step-title">Let's start with <em>the basics.</em></h2>
+          <p class="step-intro">Just the essentials — who you are, what you do, and how to reach you. We'll go deeper as we go.</p>
+        </div>
+
+        <div class="field-row">
+          <div class="field"><label>Full Name<span class="req">*</span></label><input name="name" type="text" placeholder="Jane Doe" required /></div>
+          <div class="field"><label>Today's Date</label><input name="date" type="date" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Business Name<span class="req">*</span></label><input name="business" type="text" placeholder="Acme Co." required /></div>
+          <div class="field"><label>Your Role / Title</label><input name="role" type="text" placeholder="Founder, Owner, Marketing Lead..." /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Phone Number<span class="req">*</span></label><input name="phone" type="tel" placeholder="(555) 123-4567" required /></div>
+          <div class="field"><label>Email Address<span class="req">*</span></label><input name="email" type="email" placeholder="you@business.com" required /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Current Website (if any)</label><input name="website" type="url" placeholder="https://yourbusiness.com" /></div>
+          <div class="field"><label>Years in Business</label><input name="years" type="text" placeholder="3" /></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Business Location / Service Area</label><input name="location" type="text" placeholder="Phoenix, AZ — also serve nearby cities" /></div>
+          <div class="field"><label>Industry</label><input name="industry" type="text" placeholder="Body sculpting, dental, restaurants, etc." /></div>
+        </div>
+        <div class="field"><label>Q1 — In one paragraph, describe your business.</label><textarea name="q1" placeholder="What do you sell, who do you sell to, and what makes your business worth talking about?"></textarea></div>
+        <div class="field"><label>Q2 — Who is your ideal customer?</label><textarea name="q2" placeholder="Age, location, income, pain points, what they search for..."></textarea></div>
+        <div class="field"><label>Q3 — Top 3–5 products or services.</label><textarea name="q3" placeholder="List them with quick descriptions and starting prices if relevant."></textarea></div>
+        <div class="field"><label>Q4 — Which one of these brings in the most revenue?</label><textarea name="q4" placeholder="The single biggest driver — the one we should design everything around."></textarea></div>
+      </section>
+
+      <!-- ===== Step 2 ===== -->
+      <section class="step" data-step="2">
+        <div class="step-header">
+          <div class="step-meta">Step 02 of 12 · Goals</div>
+          <h2 class="step-title">What does <em>winning</em> look like?</h2>
+          <p class="step-intro">If we nail this build, what does your business look like in six months? Be specific — vague goals lead to vague results.</p>
+        </div>
+
+        <div class="field"><label>Q5 — What's the #1 thing you want your new website to do for you? (check all that apply)</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="checkbox" name="q5" value="Get more leads / inquiries"/><span class="box"></span>Get more leads / inquiries</label>
+            <label class="opt"><input type="checkbox" name="q5" value="Sell products directly (e-commerce)"/><span class="box"></span>Sell products directly (e-commerce)</label>
+            <label class="opt"><input type="checkbox" name="q5" value="Book appointments or consultations"/><span class="box"></span>Book appointments or consultations</label>
+            <label class="opt"><input type="checkbox" name="q5" value="Build credibility & trust"/><span class="box"></span>Build credibility &amp; trust</label>
+            <label class="opt"><input type="checkbox" name="q5" value="Showcase portfolio / past work"/><span class="box"></span>Showcase portfolio / past work</label>
+            <label class="opt"><input type="checkbox" name="q5" value="Rank on Google for my services"/><span class="box"></span>Rank on Google for my services</label>
+            <label class="opt"><input type="checkbox" name="q5" value="Automate customer support / FAQs"/><span class="box"></span>Automate customer support / FAQs</label>
+            <label class="opt"><input type="checkbox" name="q5" value="Grow an email list"/><span class="box"></span>Grow an email list</label>
+          </div>
+        </div>
+
+        <div class="field"><label>Q6 — If your website was wildly successful in 6 months, what would that look like?</label><textarea name="q6" placeholder="Be specific — e.g. 'I'm getting 15 new calls a week without any cold outreach.'"></textarea></div>
+        <div class="field"><label>Q7 — How many leads or sales per month would make this website "worth it"?</label><textarea name="q7" placeholder="A real number, even a rough one — that's the target we'll engineer toward."></textarea></div>
+      </section>
+
+      <!-- ===== Step 3 ===== -->
+      <section class="step" data-step="3">
+        <div class="step-header">
+          <div class="step-meta">Step 03 of 12 · Problems</div>
+          <h2 class="step-title">Where is the business <em>leaking?</em></h2>
+          <p class="step-intro">The problems you describe here are exactly the problems your new site will solve. Be honest — every detail makes the build sharper.</p>
+        </div>
+
+        <div class="field"><label>Q8 — What's the biggest problem in your business right now?</label><textarea name="q8" placeholder="The one thing that, if solved, would change everything."></textarea></div>
+        <div class="field"><label>Q9 — What's wrong with your current website? (or — why don't you have one?)</label><textarea name="q9" placeholder="Slow, ugly, hard to update, no booking, no leads, doesn't show on Google..."></textarea></div>
+        <div class="field"><label>Q10 — What tasks are eating your time that should be automated?</label><textarea name="q10" placeholder="Replying to DMs, booking calls, sending invoices, answering the same FAQs..."></textarea></div>
+        <div class="field"><label>Q11 — What questions do customers keep asking you?</label><textarea name="q11" placeholder="If you've answered it 10+ times, the website should answer it for you."></textarea></div>
+        <div class="field"><label>Q12 — Why do prospects say no, or hesitate?</label><textarea name="q12" placeholder="Price? Timing? Trust? Confusion? List the real objections you hear."></textarea></div>
+      </section>
+
+      <!-- ===== Step 4 ===== -->
+      <section class="step" data-step="4">
+        <div class="step-header">
+          <div class="step-meta">Step 04 of 12 · Strengths</div>
+          <h2 class="step-title">What's the <em>unfair advantage?</em></h2>
+          <p class="step-intro">We build the site around what makes you the obvious choice. So tell us what you're great at — even if it feels like bragging.</p>
+        </div>
+
+        <div class="field"><label>Q13 — Why do customers choose you over the competition?</label><textarea name="q13"></textarea></div>
+        <div class="field"><label>Q14 — What can you do that competitors can't?</label><textarea name="q14"></textarea></div>
+        <div class="field"><label>Q15 — What do customers compliment you on most?</label><textarea name="q15" placeholder="Speed? Friendliness? Results? Quality? Be specific."></textarea></div>
+        <div class="field"><label>Q16 — Awards, certifications, press, or notable clients?</label><textarea name="q16"></textarea></div>
+        <div class="field"><label>Q17 — Where do your reviews and testimonials live?</label><textarea name="q17" placeholder="Google, Yelp, IG comments, screenshots... links + counts if you have them."></textarea></div>
+      </section>
+
+      <!-- ===== Step 5 ===== -->
+      <section class="step" data-step="5">
+        <div class="step-header">
+          <div class="step-meta">Step 05 of 12 · Weaknesses</div>
+          <h2 class="step-title">Where you're <em>not winning yet.</em></h2>
+          <p class="step-intro">No judgment — every business has gaps. Naming them is how we close them.</p>
+        </div>
+
+        <div class="field"><label>Q18 — Where is your marketing weakest right now?</label><textarea name="q18"></textarea></div>
+        <div class="field"><label>Q19 — Where do you most often lose customers?</label><textarea name="q19" placeholder="They don't call back? Don't book? Don't trust the price? Where does the funnel break?"></textarea></div>
+        <div class="field"><label>Q20 — What services do customers not realize you offer?</label><textarea name="q20"></textarea></div>
+        <div class="field"><label>Q21 — Skills, resources, or knowledge you wish you had?</label><textarea name="q21" placeholder="Tells us where the website needs to do the heavy lifting for you."></textarea></div>
+      </section>
+
+      <!-- ===== Step 6 ===== -->
+      <section class="step" data-step="6">
+        <div class="step-header">
+          <div class="step-meta">Step 06 of 12 · Competitors</div>
+          <h2 class="step-title">Who you're <em>climbing past.</em></h2>
+          <p class="step-intro">Knowing the field helps us position you above it. We'll study what they do well and find the gaps we can own.</p>
+        </div>
+
+        <div class="field"><label>Q22 — Top 2–3 competitors (names + websites if you have them).</label><textarea name="q22"></textarea></div>
+        <div class="field"><label>Q23 — What do those competitors do well?</label><textarea name="q23"></textarea></div>
+        <div class="field"><label>Q24 — Where do they fall short?</label><textarea name="q24"></textarea></div>
+        <div class="field"><label>Q25 — Websites you admire (any industry — links welcome).</label><textarea name="q25" placeholder="Tell us what you like about each one."></textarea></div>
+        <div class="field"><label>Q26 — Website styles that feel wrong for your brand.</label><textarea name="q26"></textarea></div>
+      </section>
+
+      <!-- ===== Step 7 ===== -->
+      <section class="step" data-step="7">
+        <div class="step-header">
+          <div class="step-meta">Step 07 of 12 · Brand &amp; Look</div>
+          <h2 class="step-title">How should the brand <em>feel?</em></h2>
+          <p class="step-intro">The look isn't decoration — it's the first impression. We'll match the energy of your business.</p>
+        </div>
+
+        <div class="field"><label>Q27 — Three to five words that describe your brand.</label><textarea name="q27" placeholder="e.g. premium, warm, fast, expert, no-nonsense"></textarea></div>
+        <div class="field"><label>Q28 — Existing logo, colors, or fonts? Where can we find them?</label><textarea name="q28" placeholder="Send links, attach files in the follow-up email, or write 'no brand yet — please create one.'"></textarea></div>
+        <div class="field"><label>Q29 — Which style fits your business best? (pick one)</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="radio" name="q29" value="Clean & minimal (lots of white space)"/><span class="box"></span>Clean &amp; minimal <em class="opt-hint">(lots of white space)</em></label>
+            <label class="opt"><input type="radio" name="q29" value="Bold & modern (big text, strong colors)"/><span class="box"></span>Bold &amp; modern <em class="opt-hint">(big text, strong colors)</em></label>
+            <label class="opt"><input type="radio" name="q29" value="Warm & friendly (inviting, personal)"/><span class="box"></span>Warm &amp; friendly <em class="opt-hint">(inviting, personal)</em></label>
+            <label class="opt"><input type="radio" name="q29" value="Professional & corporate (trust-first)"/><span class="box"></span>Professional &amp; corporate <em class="opt-hint">(trust-first)</em></label>
+            <label class="opt"><input type="radio" name="q29" value="Luxury & premium (dark, elegant)"/><span class="box"></span>Luxury &amp; premium <em class="opt-hint">(dark, elegant)</em></label>
+            <label class="opt"><input type="radio" name="q29" value="Fun & playful (bold, full of personality)"/><span class="box"></span>Fun &amp; playful <em class="opt-hint">(bold, personality)</em></label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Step 8 ===== -->
+      <section class="step" data-step="8">
+        <div class="step-header">
+          <div class="step-meta">Step 08 of 12 · Pages</div>
+          <h2 class="step-title">What pages does <em>the site need?</em></h2>
+          <p class="step-intro">Pick everything that applies. We'll trim what's not essential and prioritize what drives revenue.</p>
+        </div>
+
+        <div class="field"><label>Q30 — Which pages do you want on your site? (check all that apply)</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="checkbox" name="q30" value="Home"/><span class="box"></span>Home</label>
+            <label class="opt"><input type="checkbox" name="q30" value="About / Our Story"/><span class="box"></span>About / Our Story</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Services or Products"/><span class="box"></span>Services or Products</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Pricing"/><span class="box"></span>Pricing</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Portfolio / Gallery"/><span class="box"></span>Portfolio / Gallery</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Testimonials / Reviews"/><span class="box"></span>Testimonials / Reviews</label>
+            <label class="opt"><input type="checkbox" name="q30" value="FAQ"/><span class="box"></span>FAQ</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Blog / Resources"/><span class="box"></span>Blog / Resources</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Contact"/><span class="box"></span>Contact</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Booking / Scheduling"/><span class="box"></span>Booking / Scheduling</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Shop / E-commerce"/><span class="box"></span>Shop / E-commerce</label>
+            <label class="opt"><input type="checkbox" name="q30" value="Client Login / Portal"/><span class="box"></span>Client Login / Portal</label>
+          </div>
+        </div>
+        <div class="field"><label>Q31 — Do you have content ready (photos, copy, video) or do you need us to create it?</label><textarea name="q31" placeholder="All ready / some ready / none yet — we can write copy, art-direct photos, and source visuals if needed."></textarea></div>
+      </section>
+
+      <!-- ===== Step 9 ===== -->
+      <section class="step" data-step="9">
+        <div class="step-header">
+          <div class="step-meta">Step 09 of 12 · Lead Gen &amp; Automation</div>
+          <h2 class="step-title">Where the site does <em>your work for you.</em></h2>
+          <p class="step-intro">This is the difference between a brochure and a machine. The more you automate, the more you grow without working more hours.</p>
+        </div>
+
+        <div class="field"><label>Q32 — How do you want people to contact or buy from you? (check all that apply)</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="checkbox" name="q32" value="Contact form → email notification"/><span class="box"></span>Contact form → email notification</label>
+            <label class="opt"><input type="checkbox" name="q32" value="Phone call / click-to-call"/><span class="box"></span>Phone call / click-to-call</label>
+            <label class="opt"><input type="checkbox" name="q32" value="Text message / SMS"/><span class="box"></span>Text message / SMS</label>
+            <label class="opt"><input type="checkbox" name="q32" value="Online booking / calendar"/><span class="box"></span>Online booking / calendar</label>
+            <label class="opt"><input type="checkbox" name="q32" value="Live chat or AI chatbot"/><span class="box"></span>Live chat or AI chatbot</label>
+            <label class="opt"><input type="checkbox" name="q32" value="Direct purchase / checkout"/><span class="box"></span>Direct purchase / checkout</label>
+            <label class="opt"><input type="checkbox" name="q32" value="Request a quote form"/><span class="box"></span>Request a quote form</label>
+            <label class="opt"><input type="checkbox" name="q32" value="Email newsletter signup"/><span class="box"></span>Email newsletter signup</label>
+          </div>
+        </div>
+
+        <div class="field"><label>Q33 — Would you like an AI chatbot on your site to answer questions 24/7?</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="radio" name="q33" value="Yes — answer questions & capture leads"/><span class="box"></span>Yes — answer questions &amp; capture leads</label>
+            <label class="opt"><input type="radio" name="q33" value="Yes — but only after business hours"/><span class="box"></span>Yes — but only after business hours</label>
+            <label class="opt"><input type="radio" name="q33" value="Not sure — tell me more"/><span class="box"></span>Not sure — tell me more</label>
+            <label class="opt"><input type="radio" name="q33" value="No"/><span class="box"></span>No, thanks</label>
+          </div>
+        </div>
+
+        <div class="field"><label>Q34 — Which automations would save you the most time? (check all that apply)</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="checkbox" name="q34" value="Auto-reply when a form is submitted"/><span class="box"></span>Auto-reply when a form is submitted</label>
+            <label class="opt"><input type="checkbox" name="q34" value="Appointment booking + reminders"/><span class="box"></span>Appointment booking + reminders</label>
+            <label class="opt"><input type="checkbox" name="q34" value="Lead follow-up sequence (7–30 days)"/><span class="box"></span>Lead follow-up sequence (7–30 days)</label>
+            <label class="opt"><input type="checkbox" name="q34" value="Review requests after a job is done"/><span class="box"></span>Review requests after a job is done</label>
+            <label class="opt"><input type="checkbox" name="q34" value="Abandoned quote follow-up"/><span class="box"></span>Abandoned quote follow-up</label>
+            <label class="opt"><input type="checkbox" name="q34" value="CRM integration (HubSpot, GoHighLevel)"/><span class="box"></span>CRM integration (HubSpot, GoHighLevel…)</label>
+            <label class="opt"><input type="checkbox" name="q34" value="Online payment collection / invoicing"/><span class="box"></span>Online payment collection / invoicing</label>
+            <label class="opt"><input type="checkbox" name="q34" value="Monthly analytics report to inbox"/><span class="box"></span>Monthly analytics report to inbox</label>
+          </div>
+        </div>
+
+        <div class="field"><label>Q35 — What could you give visitors for free in exchange for their email? (a "lead magnet")</label><textarea name="q35" placeholder="Free quote, checklist, mini-guide, discount, free consultation, sample, etc."></textarea></div>
+        <div class="field"><label>Q36 — Do you currently run any paid ads? (Google, Meta, TikTok, etc.)</label><textarea name="q36" placeholder="Where you advertise, monthly spend, what's working and what isn't."></textarea></div>
+        <div class="field"><label>Q37 — Which tools do you already use that the website should connect to?</label><textarea name="q37" placeholder="e.g. Stripe, Square, Calendly, Mailchimp, HubSpot, GoHighLevel, QuickBooks, Shopify…"></textarea></div>
+      </section>
+
+      <!-- ===== Step 10 ===== -->
+      <section class="step" data-step="10">
+        <div class="step-header">
+          <div class="step-meta">Step 10 of 12 · Google &amp; SEO</div>
+          <h2 class="step-title">How customers will <em>find you.</em></h2>
+          <p class="step-intro">Local search is where small businesses live or die. Help us understand what people search for.</p>
+        </div>
+
+        <div class="field"><label>Q38 — What would someone type into Google to find a business like yours?</label><textarea name="q38" placeholder="Think like your customer, not your business name. e.g. 'body sculpting Phoenix', 'best brunch downtown', 'mobile detailing near me'"></textarea></div>
+        <div class="field"><label>Q39 — What cities, zip codes, or regions do you serve?</label><textarea name="q39" placeholder="Be specific — neighborhoods, suburbs, drive radius. Local SEO depends on it."></textarea></div>
+        <div class="field"><label>Q40 — Do you have a Google Business Profile set up?</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="radio" name="q40" value="Yes, it's active"/><span class="box"></span>Yes, it's active</label>
+            <label class="opt"><input type="radio" name="q40" value="No, I don't have one"/><span class="box"></span>No, I don't have one</label>
+            <label class="opt"><input type="radio" name="q40" value="Not sure"/><span class="box"></span>Not sure</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Step 11 ===== -->
+      <section class="step" data-step="11">
+        <div class="step-header">
+          <div class="step-meta">Step 11 of 12 · Budget &amp; Timeline</div>
+          <h2 class="step-title">When and <em>how much.</em></h2>
+          <p class="step-intro">Honest answers here mean an honest plan back. We design within real budgets, not made-up ones.</p>
+        </div>
+
+        <div class="field"><label>Q41 — When do you want this website live?</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="radio" name="q41" value="ASAP — within 2 weeks"/><span class="box"></span>ASAP — within 2 weeks</label>
+            <label class="opt"><input type="radio" name="q41" value="Within 1 month"/><span class="box"></span>Within 1 month</label>
+            <label class="opt"><input type="radio" name="q41" value="Within 2–3 months"/><span class="box"></span>Within 2–3 months</label>
+            <label class="opt"><input type="radio" name="q41" value="Flexible — quality over speed"/><span class="box"></span>Flexible — quality over speed</label>
+          </div>
+        </div>
+
+        <div class="field"><label>Q42 — What's your budget range for this project?</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="radio" name="q42" value="Under $1,000"/><span class="box"></span>Under $1,000</label>
+            <label class="opt"><input type="radio" name="q42" value="$1,000 – $3,000"/><span class="box"></span>$1,000 – $3,000</label>
+            <label class="opt"><input type="radio" name="q42" value="$3,000 – $7,000"/><span class="box"></span>$3,000 – $7,000</label>
+            <label class="opt"><input type="radio" name="q42" value="$7,000 – $15,000"/><span class="box"></span>$7,000 – $15,000</label>
+            <label class="opt"><input type="radio" name="q42" value="$15,000+"/><span class="box"></span>$15,000+</label>
+            <label class="opt"><input type="radio" name="q42" value="Not sure — show me options"/><span class="box"></span>Not sure — show me options</label>
+          </div>
+        </div>
+
+        <div class="field"><label>Q43 — Are you interested in ongoing maintenance, hosting, or monthly updates?</label>
+          <div class="options cols-2">
+            <label class="opt"><input type="radio" name="q43" value="Yes, definitely"/><span class="box"></span>Yes, definitely</label>
+            <label class="opt"><input type="radio" name="q43" value="No, just the build"/><span class="box"></span>No, just the build</label>
+            <label class="opt"><input type="radio" name="q43" value="Tell me more first"/><span class="box"></span>Tell me more first</label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Step 12 ===== -->
+      <section class="step" data-step="12">
+        <div class="step-header">
+          <div class="step-meta">Step 12 of 12 · Final Notes</div>
+          <h2 class="step-title">The last <em>two questions.</em></h2>
+          <p class="step-intro">You're at the summit. Anything else we should know before we build your plan?</p>
+        </div>
+
+        <div class="field"><label>Q44 — Anything else we should know?</label><textarea name="q44" placeholder="Quirks, preferences, must-haves, must-nots, the stuff that didn't fit anywhere else."></textarea></div>
+        <div class="field"><label>Q45 — How did you hear about Ridgeline?</label><textarea name="q45" placeholder="Instagram, referral, ad, search, direct..."></textarea></div>
+      </section>
+
+      <!-- ===== Step nav ===== -->
+      <div class="step-nav">
+        <button type="button" class="step-back" id="backBtn" disabled><span class="arr">←</span> Back</button>
+        <button type="button" class="step-next" id="nextBtn">Continue <span class="arr">→</span></button>
+      </div>
+
+      </form>
+
+      <!-- Confirmation -->
+      <div class="confirmation" id="confirmation">
+        <div class="check-mark">✓</div>
+        <h2>You just made the <em>right call.</em></h2>
+        <p>Your discovery form is in. Now the real work starts on our end — every answer you gave is being read closely, and we're already drafting your custom plan.</p>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="step-time">Today</div>
+            <h4>We review</h4>
+            <p>Every answer gets read in detail. No outsourcing, no skim.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="step-time">Within 48 hours</div>
+            <h4>You get a plan</h4>
+            <p>A custom strategy doc with pages, automations, fixed pricing, and timeline.</p>
+          </div>
+          <div class="timeline-item">
+            <div class="step-time">Day 3+</div>
+            <h4>We build</h4>
+            <p>Approve the plan and the work starts immediately. You'll see progress in days, not months.</p>
+          </div>
+        </div>
+        <p style="margin-top: 56px; font-size: 14px; color: rgba(245, 241, 234, 0.55);">
+          Questions in the meantime? <a href="mailto:llcridgeline@gmail.com" style="color: var(--gold-soft); text-decoration: underline; text-underline-offset: 4px;">llcridgeline@gmail.com</a>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer>
+  <div class="footer-mark">Ridgeline · <em>websites that climb.</em></div>
+  <div style="margin-bottom: 8px;">
+    Get in touch — <a href="mailto:llcridgeline@gmail.com" style="color: var(--navy); font-weight: 700; text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: 3px;">llcridgeline@gmail.com</a>
+  </div>
+  <div>© 2026 Ridgeline · All rights reserved · Built with intent.</div>
+</footer>
+
+<script>
+  const totalSteps = 12;
+  let currentStep = 1;
+
+  const steps = document.querySelectorAll('.step');
+  const stepListItems = document.querySelectorAll('#stepList li');
+  const progressFill = document.getElementById('progressFill');
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const navStep = document.getElementById('navStep');
+  const formEl = document.getElementById('discoveryForm');
+  const confirmation = document.getElementById('confirmation');
+
+  function goTo(step) {
+    if (step < 1 || step > totalSteps) return;
+    currentStep = step;
+    steps.forEach(s => s.classList.toggle('active', Number(s.dataset.step) === step));
+    stepListItems.forEach(li => {
+      const n = Number(li.dataset.step);
+      li.classList.toggle('active', n === step);
+      li.classList.toggle('completed', n < step);
+    });
+    progressFill.style.width = (step / totalSteps * 100) + '%';
+    navStep.textContent = step;
+    backBtn.disabled = step === 1;
+    nextBtn.innerHTML = step === totalSteps ? 'Submit Discovery <span class="arr">→</span>' : 'Continue <span class="arr">→</span>';
+
+    // scroll to top of form panel
+    document.querySelector('.form-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Validate required fields in current step
+  function validateStep() {
+    const stepEl = document.querySelector('.step.active');
+    const requiredFields = stepEl.querySelectorAll('[required]');
+    let firstInvalid = null;
+    requiredFields.forEach(f => {
+      if (!f.value.trim()) {
+        f.style.borderBottomColor = '#b54834';
+        if (!firstInvalid) firstInvalid = f;
+        f.addEventListener('input', () => { f.style.borderBottomColor = ''; }, { once: true });
+      }
+    });
+    if (firstInvalid) {
+      firstInvalid.focus();
+      return false;
+    }
+    return true;
+  }
+
+  nextBtn.addEventListener('click', () => {
+    if (!validateStep()) return;
+    if (currentStep === totalSteps) {
+      submitForm();
+    } else {
+      goTo(currentStep + 1);
+    }
+  });
+
+  backBtn.addEventListener('click', () => goTo(currentStep - 1));
+
+  // Allow clicking on completed steps in sidebar
+  stepListItems.forEach(li => {
+    li.addEventListener('click', () => {
+      const target = Number(li.dataset.step);
+      if (target < currentStep) goTo(target);
+    });
+  });
+
+  function submitForm() {
+    // In production, post to your endpoint here.
+    // const data = new FormData(formEl);
+    // fetch('/api/discovery', { method: 'POST', body: data });
+
+    formEl.style.display = 'none';
+    document.querySelector('.sidebar').style.opacity = '0.4';
+    confirmation.classList.add('active');
+    confirmation.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  // Auto-fill today's date
+  const today = new Date().toISOString().slice(0, 10);
+  const dateInput = formEl.querySelector('input[name="date"]');
+  if (dateInput) dateInput.value = today;
+
+  // Scroll-triggered reveals
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.15 });
+  reveals.forEach(r => io.observe(r));
+
+  // ================= PARTICLE HERO =================
+  (function initParticleHero() {
+    const canvas = document.getElementById('particleCanvas');
+    const heroDark = document.getElementById('heroDark');
+    const modeToggle = document.getElementById('modeToggle');
+    if (!canvas || !heroDark) return;
+
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let rafId = null;
+
+    function makeParticle() {
+      const p = {
+        x: 0, y: 0, speed: 0, opacity: 1,
+        fadeDelay: 0, fadeStart: 0, fadingOut: false,
+        reset() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.speed = Math.random() / 5 + 0.1;
+          this.opacity = 1;
+          this.fadeDelay = Math.random() * 600 + 100;
+          this.fadeStart = Date.now() + this.fadeDelay;
+          this.fadingOut = false;
+        },
+        update() {
+          this.y -= this.speed;
+          if (this.y < 0) this.reset();
+          if (!this.fadingOut && Date.now() > this.fadeStart) this.fadingOut = true;
+          if (this.fadingOut) {
+            this.opacity -= 0.008;
+            if (this.opacity <= 0) this.reset();
+          }
+        },
+        draw() {
+          ctx.fillStyle = 'rgba(' + (255 - (Math.random() * 255) / 2) + ', 255, 255, ' + this.opacity + ')';
+          ctx.fillRect(this.x, this.y, 0.4, Math.random() * 2 + 1);
+        }
+      };
+      p.reset();
+      p.y = Math.random() * canvas.height;
+      return p;
+    }
+
+    function initParticles() {
+      const count = Math.floor((canvas.width * canvas.height) / 6000);
+      particles = [];
+      for (let i = 0; i < count; i++) particles.push(makeParticle());
+    }
+
+    function loop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+      }
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function resize() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      initParticles();
+    }
+
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    initParticles();
+    loop();
+    window.addEventListener('resize', resize);
+
+    // Mode toggle (gold ↔ blue)
+    if (modeToggle) {
+      modeToggle.addEventListener('click', () => {
+        heroDark.classList.toggle('gold-mode');
+      });
+    }
+
+    // Pause animation when hero is offscreen (perf)
+    const visObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (!rafId) loop();
+        } else {
+          if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        }
+      });
+    }, { threshold: 0 });
+    visObserver.observe(heroDark);
+
+    // Toggle nav theme based on whether the dark hero is in view
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        document.body.classList.toggle('dark-top', entry.isIntersecting);
+      });
+    }, { threshold: 0.15 });
+    navObserver.observe(heroDark);
+  })();
+</script>
+
+</body>
+</html>

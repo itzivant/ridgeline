@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ridgeline — Brand Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy: #0B1B2B;
+    --gold: #D4AF37;
+    --cream: #F5F1EA;
+    --line: #E5DDC9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+    background: var(--cream);
+    color: var(--navy);
+    line-height: 1.5;
+  }
+
+  header {
+    padding: 60px 48px 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 44px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .subtitle { font-size: 18px; color: #4a5562; max-width: 560px; }
+
+  main { padding: 48px; max-width: 1200px; margin: 0 auto; }
+
+  section { margin-bottom: 64px; }
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #6b7280;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .panel {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 64px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+  }
+  .panel.dark { background: var(--navy); }
+  .panel img, .panel svg { max-width: 100%; height: auto; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+
+  .icon-panel { min-height: 200px; }
+  .icon-panel img { max-width: 120px; }
+
+  .label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #9ca3af;
+    font-weight: 600;
+    margin-top: 16px;
+    text-align: center;
+  }
+
+  .panel-wrap { display: flex; flex-direction: column; }
+
+  /* Color swatches */
+  .swatches { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .swatch {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: white;
+  }
+  .swatch-color { height: 140px; }
+  .swatch-info { padding: 16px 20px; }
+  .swatch-name { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .swatch-hex { font-family: 'Courier New', monospace; font-size: 13px; color: #6b7280; }
+  .swatch-role { font-size: 13px; color: #6b7280; margin-top: 6px; }
+
+  /* Ad mock */
+  .ad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .ad {
+    border-radius: 16px;
+    aspect-ratio: 1 / 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: var(--cream);
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+  }
+  .ad-glow {
+    position: absolute;
+    top: -40%;
+    right: -30%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(212,175,55,0.18), transparent 65%);
+    pointer-events: none;
+  }
+  .ad .ad-logo { width: 180px; }
+  .ad-headline {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+  }
+  .ad-headline span { color: var(--gold); }
+  .ad-cta {
+    align-self: flex-start;
+    background: var(--gold);
+    color: var(--navy);
+    padding: 12px 24px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .ad.alt { background: var(--cream); color: var(--navy); }
+  .ad.alt .ad-glow {
+    background: radial-gradient(circle, rgba(11,27,43,0.08), transparent 65%);
+  }
+
+  /* Card / business card mock */
+  .card-mock {
+    aspect-ratio: 1.75 / 1;
+    background: var(--navy);
+    border-radius: 12px;
+    padding: 32px;
+    color: var(--cream);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .card-mock .card-name { font-weight: 800; font-size: 20px; }
+  .card-mock .card-role { font-size: 13px; color: #b9c1cb; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+  .card-mock .card-info { font-size: 13px; color: #b9c1cb; }
+
+  /* Favicon */
+  .favicon-row { display: flex; gap: 32px; align-items: flex-end; }
+  .fav { display: flex; flex-direction: column; align-items: center; }
+  .fav-tile {
+    background: var(--navy);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .fav-tile img { width: 60%; height: 60%; }
+  .fav-16 { width: 16px; height: 16px; border-radius: 3px; }
+  .fav-32 { width: 32px; height: 32px; border-radius: 5px; }
+  .fav-64 { width: 64px; height: 64px; }
+  .fav-128 { width: 128px; height: 128px; }
+
+  footer {
+    padding: 32px 48px;
+    border-top: 1px solid var(--line);
+    color: #6b7280;
+    font-size: 13px;
+  }
+
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .swatches, .ad-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 32px; }
+    main, header { padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Brand Identity</div>
+  <h1>Ridgeline</h1>
+  <p class="subtitle">A premium agency mark built on the idea of climbing — every client we take on, we help reach the summit.</p>
+</header>
+
+<main>
+
+  <section>
+    <div class="section-title">Primary Logo</div>
+    <div class="panel">
+      <img src="logo-primary.svg" alt="Ridgeline primary logo" style="max-width: 480px;" />
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Lockups</div>
+    <div class="grid-2">
+      <div class="panel-wrap">
+        <div class="panel">
+          <img src="logo-stacked.svg" alt="Ridgeline stacked logo" style="max-width: 280px;" />
+        </div>
+        <div class="label">Stacked</div>
+      </div>
+      <div class="panel-wrap">
+        <div class="panel dark">
+          <img src="logo-reverse.svg" alt="Ridgeline reverse logo" style="max-width: 380px;" />
+        </div>
+        <div class="label">Reverse / Dark backgrounds</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Icon Mark</div>
+    <div class="grid-3">
+      <div class="panel-wrap">
+        <div class="panel icon-panel"><img src="logo-icon.svg" alt="Ridgeline icon" /></div>
+        <div class="label">On Cream</div>
+      </div>
+      <div class="panel-wrap">
+        <div class="panel icon-panel" style="background: white;"><img src="logo-icon.svg" alt="Ridgeline icon" /></div>
+        <div class="label">On White</div>
+      </div>
+      <div class="panel-wrap">
+        <div class="panel icon-panel dark">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 60" style="max-width: 120px;">
+            <path d="M 4 50 L 18 36 L 28 42 L 42 22 L 52 30 L 66 6 L 76 38"
+              fill="none" stroke="#F5F1EA" stroke-width="4.5"
+              stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="66" cy="6" r="4" fill="#D4AF37" />
+          </svg>
+        </div>
+        <div class="label">On Navy</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Color Palette</div>
+    <div class="swatches">
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--navy);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Midnight Navy</div>
+          <div class="swatch-hex">#0B1B2B</div>
+          <div class="swatch-role">Primary — trust, premium, established</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--gold);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Summit Gold</div>
+          <div class="swatch-hex">#D4AF37</div>
+          <div class="swatch-role">Accent — wealth, success, the goal</div>
+        </div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background: var(--cream); border-bottom: 1px solid var(--line);"></div>
+        <div class="swatch-info">
+          <div class="swatch-name">Off-White</div>
+          <div class="swatch-hex">#F5F1EA</div>
+          <div class="swatch-role">Neutral — backgrounds, body copy</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Favicon / App Icon</div>
+    <div class="panel" style="justify-content: flex-start; padding: 48px;">
+      <div class="favicon-row">
+        <div class="fav">
+          <div class="fav-tile fav-16">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 60">
+              <path d="M 4 50 L 18 36 L 28 42 L 42 22 L 52 30 L 66 6 L 76 38" fill="none" stroke="#F5F1EA" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="66" cy="6" r="6" fill="#D4AF37" />
+            </svg>
+          </div>
+          <div class="label">16px</div>
+        </div>
+        <div class="fav">
+          <div class="fav-tile fav-32">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 60">
+              <path d="M 4 50 L 18 36 L 28 42 L 42 22 L 52 30 L 66 6 L 76 38" fill="none" stroke="#F5F1EA" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="66" cy="6" r="5" fill="#D4AF37" />
+            </svg>
+          </div>
+          <div class="label">32px</div>
+        </div>
+        <div class="fav">
+          <div class="fav-tile fav-64">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 60">
+              <path d="M 4 50 L 18 36 L 28 42 L 42 22 L 52 30 L 66 6 L 76 38" fill="none" stroke="#F5F1EA" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="66" cy="6" r="4" fill="#D4AF37" />
+            </svg>
+          </div>
+          <div class="label">64px</div>
+        </div>
+        <div class="fav">
+          <div class="fav-tile fav-128">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 60">
+              <path d="M 4 50 L 18 36 L 28 42 L 42 22 L 52 30 L 66 6 L 76 38" fill="none" stroke="#F5F1EA" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="66" cy="6" r="4" fill="#D4AF37" />
+            </svg>
+          </div>
+          <div class="label">128px</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Ad Creative — How It Looks Out There</div>
+    <div class="ad-grid">
+      <div class="ad">
+        <div class="ad-glow"></div>
+        <img src="logo-reverse.svg" alt="Ridgeline" class="ad-logo" />
+        <div class="ad-headline">Your business deserves to <span>reach the summit.</span></div>
+        <div class="ad-cta">Get Started →</div>
+      </div>
+      <div class="ad alt">
+        <div class="ad-glow"></div>
+        <img src="logo-primary.svg" alt="Ridgeline" class="ad-logo" />
+        <div class="ad-headline">Websites that bring in <span style="color: #D4AF37;">paying clients.</span></div>
+        <div class="ad-cta" style="background: var(--navy); color: var(--cream);">Book a Call →</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Business Card</div>
+    <div class="grid-2">
+      <div class="card-mock">
+        <img src="logo-reverse.svg" alt="Ridgeline" style="width: 200px;" />
+        <div>
+          <div class="card-name">Ivan Tiscareno</div>
+          <div class="card-role">Founder</div>
+        </div>
+        <div class="card-info">ridgeline.agency · ivan@ridgeline.agency</div>
+      </div>
+      <div class="card-mock" style="background: var(--cream); color: var(--navy);">
+        <img src="logo-primary.svg" alt="Ridgeline" style="width: 200px;" />
+        <div>
+          <div class="card-name">Ivan Tiscareno</div>
+          <div class="card-role" style="color: #6b7280;">Founder</div>
+        </div>
+        <div class="card-info" style="color: #6b7280;">ridgeline.agency · ivan@ridgeline.agency</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Ridgeline brand preview · Generated for Ivan Tiscareno · Open this file in any browser.
+</footer>
+
+</body>
+</html>
