@@ -2,11 +2,11 @@
 
 A premium client discovery experience for Ridgeline — an agency that builds websites engineered to bring small businesses real customers, not just impressions.
 
-**Live page:** open `discovery.html` in any modern browser.
+**Live page:** open `index.html` in any modern browser, or visit the deployed Vercel URL.
 
 ## What's inside
 
-- `discovery.html` — the full discovery form (multi-step wizard, 12 sections, 45 questions, particle-effect dark hero, testimonials, trust badges, confirmation timeline)
+- `index.html` — the full discovery form (multi-step wizard, 12 sections, 45 questions, particle-effect dark hero, testimonials, trust badges, confirmation timeline)
 - `logo-primary.svg` — horizontal lockup (icon + RIDGELINE wordmark)
 - `logo-stacked.svg` — icon stacked above wordmark
 - `logo-icon.svg` — icon-only mark (favicon, social avatar, watermark)
